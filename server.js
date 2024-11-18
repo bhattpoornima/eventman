@@ -1,4 +1,5 @@
 const Event = require('./models/Event'); // Import Event model
+const moment = require('moment-timezone');
 
 // Importing the Express library
 const express = require('express'); 
@@ -33,7 +34,6 @@ mongoose.connect('mongodb://localhost:27017/eventManagement')
 // Route to get all events
 app.get('/events', async (req, res) => {
     try {
-        const moment = require('moment-timezone');
         const events = await Event.find(); // Fetch all events
         // Convert each event's date from UTC to local time zone
         const eventsWithLocalTime = events.map(event => {
@@ -55,18 +55,35 @@ const { body, validationResult } = require('express-validator');
 app.post('/events/add', 
     body('name').isString().withMessage('Event name is required'),
     body('date').isISO8601().withMessage('Invalid date format'),
+    body('startTime').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid start time format (HH:mm)'),
+    body('endTime').matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('Invalid end time format (HH:mm)'),
+    body('location').isString().trim().notEmpty().withMessage('Location is required'),
+    body('description').optional().isString().isLength({ max: 500 }).withMessage('Description must be 500 characters or less'),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log(errors.array()); // Print validation errors to the console
             return res.status(400).json({ errors: errors.array() });
         }
         try {
-            const moment = require('moment-timezone');
+            const { name, date, startTime, endTime, location, description } = req.body;
             // Convert the date to UTC before saving
             const localDate = req.body.date;
             const utcDate = moment.tz(localDate, 'Asia/Kolkata').utc().format();
-
             req.body.date = utcDate; // Update the date to UTC format
+
+            //checking duplicate entries with same name and start time and location and date
+            const existingEvent = await Event.findOne({
+                name: name,
+                date: utcDate,
+                startTime: startTime,
+                location: location
+            });
+    
+            if (existingEvent) {
+                return res.status(409).json({ message: 'Event with the same name, date, start time, and location already exists' });
+            }
+
             
             const newEvent = new Event(req.body);
             const savedEvent = await newEvent.save();
