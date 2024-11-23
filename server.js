@@ -22,9 +22,9 @@ app.use('/api/events', eventRoutes); // Apply authMiddleware to protect event ro
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB Atlas');
 }).catch(err => {
-    console.error('MongoDB connection error:', err);
+    console.error('MongoDB Atlas connection error:', err);
 });
 
 // Test route
