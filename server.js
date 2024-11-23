@@ -32,6 +32,21 @@ app.get('/', (req, res) => {
     res.send('Event Management API is running!');
 });
 
+const axios = require('axios');
+app.get('/my-ip', async (req, res) => {
+    try {
+      // Make a request to ipify API to get the outgoing IP
+      const response = await axios.get('https://api.ipify.org?format=json');
+      
+      // Send the IP address back in the response
+      res.json({ ip: response.data.ip });
+    } catch (error) {
+      // If there's an error fetching the IP, return an error message
+      res.status(500).json({ error: 'Unable to fetch IP' });
+    }
+  });
+
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
