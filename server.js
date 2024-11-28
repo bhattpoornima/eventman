@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());  // Add CORS if needed for cross-origin requests
+app.use(cors({ origin: "https://event-managment-frontent.vercel.app/" }));  // Add CORS if needed for cross-origin requests
 
 // Route for user authentication (registration and login)
 app.use('/api/auth', authRoutes);
