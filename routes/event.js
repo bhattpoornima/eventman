@@ -69,22 +69,20 @@ router.post('/add', authMiddleware, // Use the authMiddleware here
     }
 );
 
-// Route to update an event (requires authentication)
-router.put('/:id', authMiddleware, async (req, res) => {
+// Route to get details of a single event by ID
+router.get('/:id', async (req, res) => {
     try {
-        const eventId = req.params.id; // Get the event ID from the route
-        const updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, {
-            new: true, // Return the updated document
-            runValidators: true, // Validate the updated data
-        });
-        if (!updatedEvent) {
-            return res.status(404).json({ message: 'Event not found' });
-        }
-        res.json(updatedEvent); // Respond with the updated event
+      const eventId = req.params.id; // Get the event ID from the route
+      const event = await Event.findById(eventId); // Fetch event by ID
+      if (!event) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+      res.json(event); // Respond with the event details
     } catch (error) {
-        res.status(400).json({ message: 'Error updating event', error });
+      res.status(400).json({ message: 'Error fetching event details', error });
     }
-});
+  });
+  
 
 // Route to delete an event (requires authentication)
 router.delete('/:id', authMiddleware, async (req, res) => {
