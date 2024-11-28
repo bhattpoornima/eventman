@@ -65,6 +65,17 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+//logout route
+// Backend - Add logout route (Express)
+router.post('/logout', (req, res) => {
+    // Optional: You could invalidate the token here if you want, but JWT is stateless, so usually, it's not necessary
+    // For example, you could set the token to null in client-side storage (localStorage or cookies)
+    
+    // Assuming you're using JWT:
+    res.clearCookie('token'); // Clear JWT from cookies, if it's stored there
+
+    res.status(200).json({ message: 'Logged out successfully' });
+});
 
 
 module.exports = router;
