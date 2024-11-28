@@ -68,20 +68,22 @@ router.post('/add', authMiddleware, // Use the authMiddleware here
         }
     }
 );
-
-// Route to get details of a single event by ID
-router.get('/:id', async (req, res) => {
+//updating event 
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
-      const eventId = req.params.id; // Get the event ID from the route
-      const event = await Event.findById(eventId); // Fetch event by ID
-      if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
-      }
-      res.json(event); // Respond with the event details
+        const eventId = req.params.id; // Get the event ID from the route
+        const updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, {
+            new: true, // Return the updated document
+            runValidators: true, // Validate the updated data
+        });
+        if (!updatedEvent) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+        res.json(updatedEvent); // Respond with the updated event
     } catch (error) {
-      res.status(400).json({ message: 'Error fetching event details', error });
+        res.status(400).json({ message: 'Error updating event', error });
     }
-  });
+});
   
 
 // Route to delete an event (requires authentication)
@@ -97,6 +99,19 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Error deleting event', error });
     }
 });
+// Route to get details of a single event by ID
+router.get('/:id', async (req, res) => {
+    try {
+      const eventId = req.params.id; // Get the event ID from the route
+      const event = await Event.findById(eventId); // Fetch event by ID
+      if (!event) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+      res.json(event); // Respond with the event details
+    } catch (error) {
+      res.status(400).json({ message: 'Error fetching event details', error });
+    }
+  });
 //users registering for the event
 router.post('/:id/register', authMiddleware, async (req, res) => {
     try {

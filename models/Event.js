@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Define Event schema
 const eventSchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true }, // Name is required and trimmed
+    name: { type: String, required: true,unique: true, trim: true }, // Name is required and trimmed
     date: { type: Date, required: true }, // Date is required
     startTime: {type: String,required: true},//start time is required
     endTime: {type: String,required: true},//end time is required
