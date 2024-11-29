@@ -97,19 +97,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
   
 
-// Route to delete an event (requires authentication)
-router.delete('/:id', authMiddleware, async (req, res) => {
-    try {
-        const eventId = req.params.id; // Get the event ID from the route
-        const deletedEvent = await Event.findByIdAndDelete(eventId);
-        if (!deletedEvent) {
-            return res.status(404).json({ message: 'Event not found' });
-        }
-        res.json({ message: 'Event deleted successfully', deletedEvent });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting event', error });
-    }
-});
+
 // Route to delete an event (only for the creator)
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
