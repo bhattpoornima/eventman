@@ -11,13 +11,14 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: "https://event-managment-frontent-juma.vercel.app" }));  // Add CORS if needed for cross-origin requests
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
+
 
 // Route for user authentication (registration and login)
 app.use('/api/auth', authRoutes);
 
 // Route for event management (CRUD operations)
-app.use('/api/events', eventRoutes); // Apply authMiddleware to protect event routes
+app.use('/api/events', eventRoutes); // Apply authMiddleware to protect event routes in the routes only
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
