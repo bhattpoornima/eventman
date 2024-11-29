@@ -57,7 +57,8 @@ router.post('/add', authMiddleware, // Use the authMiddleware here
             if (existingEvent) {
                 return res.status(409).json({ message: 'Event with the same name, date, start time, and location already exists' });
             }
-
+            // Add the createdBy field with the user's ID
+            req.body.createdBy = req.user.userId;
             // Create and save the new event
             const newEvent = new Event(req.body);
             const savedEvent = await newEvent.save();
@@ -68,17 +69,27 @@ router.post('/add', authMiddleware, // Use the authMiddleware here
         }
     }
 );
-//updating event 
+// Updating event (only for the creator)
 router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const eventId = req.params.id; // Get the event ID from the route
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        // Check if the authenticated user is the creator of the event
+        if (event.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'You are not authorized to edit this event' });
+        }
+
+        // Proceed with the update if the user is the creator
         const updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, {
             new: true, // Return the updated document
             runValidators: true, // Validate the updated data
         });
-        if (!updatedEvent) {
-            return res.status(404).json({ message: 'Event not found' });
-        }
+
         res.json(updatedEvent); // Respond with the updated event
     } catch (error) {
         res.status(400).json({ message: 'Error updating event', error });
@@ -99,19 +110,28 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Error deleting event', error });
     }
 });
-// Route to get details of a single event by ID
-router.get('/:id', async (req, res) => {
+// Route to delete an event (only for the creator)
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
-      const eventId = req.params.id; // Get the event ID from the route
-      const event = await Event.findById(eventId); // Fetch event by ID
-      if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
-      }
-      res.json(event); // Respond with the event details
+        const eventId = req.params.id; // Get the event ID from the route
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        // Check if the authenticated user is the creator of the event
+        if (event.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'You are not authorized to delete this event' });
+        }
+
+        // Proceed with deletion if the user is the creator
+        await event.remove();
+        res.json({ message: 'Event deleted successfully' });
     } catch (error) {
-      res.status(400).json({ message: 'Error fetching event details', error });
+        res.status(500).json({ message: 'Error deleting event', error });
     }
-  });
+});
 //users registering for the event
 router.post('/:id/register', authMiddleware, async (req, res) => {
     try {

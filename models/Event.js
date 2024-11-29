@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema({
     location: { type: String, required: true, trim: true }, // Location is required
     description: { type: String, maxlength: 500 }, // Description is optional but limited to 500 characters
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],// Array of user IDs
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  
 });
 
 // Create Event model
