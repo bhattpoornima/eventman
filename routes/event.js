@@ -62,7 +62,7 @@ router.post('/add', authMiddleware, // Use the authMiddleware here
             // Create and save the new event
             const newEvent = new Event(req.body);
             const savedEvent = await newEvent.save();
-            res.status(201).json(savedEvent);
+            res.status(201).json( {message: 'Event created successfully',event: savedEvent});
         } catch (error) {
             console.error('Error creating event:', error);
             res.status(400).json({ message: 'Error creating event', error: error.message });
